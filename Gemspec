@@ -1,0 +1,13 @@
+Gem::Specification.new do |s|
+  s.name        = 'cmd-utils'
+  s.version     = '1.0.0'
+  s.date        = '2013-08-01'
+  s.summary     = "Utilities for ruby command line scripts"
+  s.description = "Some handy utilities for writing command line scripts in ruby."
+  s.author      = "Alan K. Stebbens"
+  s.email       = 'aks@stebbens.org'
+  s.files       = ["lib/cmd-utils.rb"]
+  s.test_file   = 'tests/test-cmd-utils.rb'
+  s.homepage    = 'http://github.com/aks/cmd-utils'
+  s.license     = 'GPL-2'
+end
