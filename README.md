@@ -1,11 +1,13 @@
 cmd-utils
 =========
 
-Command-line utilities for ruby scripts
+Utilities for writing command line tools in ruby.
 
-cmd-utils.rb -- simple utilities for ruby command line tools.
+Installation:
 
-Author: Alan K. Stebbens <aks@stebbens.org>
+    gem install cmd-utils
+
+Usage:
 
     require 'cmd-utils'
 
@@ -77,3 +79,19 @@ command evaluation with the `$verbose` treatment.
     safe_run   cmd
     safe_run { cmd } 
 
+The `lookup` routine makes it easy to lookup keywords and parameters (from the
+command line, for example).
+
+    result = lookup list, key, err_notfound="%s not found", err_ambig="% is ambiguous"
+
+Lookup `key` in `list`, which is an array (or hash).  Return the one that matches
+unambiguously, or report an error.
+
+If `err_notfound` is nil, do not report an error, and return nil.
+
+If `err_ambig` is nil, return the list of possible results.
+
+Author
+------
+
+Alan K. Stebbens <aks@stebbens.org>
