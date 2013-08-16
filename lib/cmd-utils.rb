@@ -4,8 +4,10 @@
 #
 #
 #    require 'cmd-utils'
+# 
+# Utilities for output, running commands, and looking up values.
 #
-# These utilities provide simple utilities that rely on some global variables:
+# The output and run methods rely on some external variables:
 #
 #    $verbose -- causes certain commands to talk more
 #    $norun   -- causes the "run" command to print its argument, but not actually run it.
@@ -176,6 +178,34 @@ def safe_run cmd=nil
   if $? > 0
     qtalkf { [ ">> %s\n", cmd ] }
     errorf $?, "Command failed with code %d!\n", $?
+  end
+end
+
+## 
+# result = lookup list, key, err_notfound="%s not found", err_ambig="% is ambiguous"
+#
+# Lookup key in list, which is an array (or hash).  Return the one that matches
+# unambiguously, or report an error.
+#
+# If err_notfound is nil, do not report an error, and return nil.
+#
+# If err_ambigmsg is nil, return the list of possible results.
+
+def lookup list, key, err_notfound="%s not found", err_ambig="%s is ambiguous"
+  keys = list.grep(/^#{key}/i)
+  case keys.size
+  when 0
+    unless err_notfound.nil?
+      errorf err_notfound, key
+    end
+    return nil
+  when 1
+    return keys[0]
+  else
+    unless err_ambig.nil?
+      errorf err_ambig, key
+    end
+    return keys
   end
 end
 

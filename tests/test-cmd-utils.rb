@@ -6,17 +6,15 @@ require 'minitest'
 require 'minitest/autorun'
 require 'cmd-utils'
 
-class TestCmdUtils < MiniTest::Unit::TestCase
+# these routines produce output on STDERR depending on $norun, $verbose, and $quiet.
 
-  # these routines produce output on STDERR depending on $norun, $verbose, and $quiet.
-  
+class TestCmdUtils < MiniTest::Test
+
   def gen_test name, norun, verbose, quiet, output
     $norun   = norun > 0
     $verbose = verbose > 0
     $quiet   = quiet > 0
-    out, err = capture_io do
-      result = yield
-    end
+    out, err = capture_io { yield }
     assert_empty(out, "#{name} $stdout should be empty")
     case output
     when TrueClass
@@ -26,7 +24,9 @@ class TestCmdUtils < MiniTest::Unit::TestCase
     when String
       assert_match(out, output, "#{name} $stderr should match #{output}")
     end
+    true
   end
+
 
   def test_talk_arg
     #           nr, verb, quiet, output?
@@ -201,6 +201,32 @@ class TestCmdUtils < MiniTest::Unit::TestCase
     gen_test('nrtalkf_content', 0, 0, 1, "-hello-")         { nrtalkf("-%s-") { "hello" } }
     gen_test('nrtalkf_default_content', 0, 0, 1, "-hello-") { nrtalkf           "hello" }
     gen_test('nrtalkf_default_content', 0, 0, 1, "-hello-") { nrtalkf         { "hello" } }
+  end
+
+  ############################################################
+
+  def lookup_test input, output, errok=nil
+    found = nil
+    out, err = capture_io { found = lookup(@keywords, input) }
+    if errok
+      refute_empty err
+    else
+      assert_empty err
+      assert_equal found, output
+    end
+    true
+  end
+
+  def test_lookup
+    @keywords = %w( set get show edit reset delete count )
+    lookup_test 'se',   'set'
+    lookup_test 'set',  'set'
+    lookup_test 'SET',  'set'
+    lookup_test 'show', 'show'
+    lookup_test 'sh',   'show'
+    lookup_test 'e',    'edit'
+    lookup_test 'ed',   'edit'
+    lookup_test 's',    %w( set show )
   end
 
 end
