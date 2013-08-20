@@ -10,18 +10,21 @@ class NilClass ; def to_s ; '' ; end ; end
 
 class TestLookup < MiniTest::Test
 
-  def do_lookup input, output, errok=nil
+  # do_lookup input-text, output-text, true-if-notfound, true-if-ambiguous
+
+  def do_lookup input, output, notfound=nil, ambig=nil
     found = nil
-    err = ''
-    begin
-      found = lookup(@keywords, input)
-      found = found.first if found && found.size == 1
-    rescue LookupError  => err
-    end
-    if errok
-      refute_empty err.to_s, "Input = #{input}\nErr = #{err.to_s}\n"
+    if notfound
+      assert_raises(LookupNotFoundError) { 
+        found = lookup(@keywords, input)
+      }
+    elsif ambig
+      assert_raises(LookupAmbigError)    { 
+        found = lookup(@keywords, input)
+      }
     else
-      assert_empty err.to_s, "Input = #{input}\nErr = #{err}\n"
+      found = lookup(@keywords, input)
+      #found = found.first if found && found.size == 1
       assert_equal found, output, "Input = #{input}\nOutput = #{output}\n"
     end
   end
@@ -32,18 +35,19 @@ class TestLookup < MiniTest::Test
     do_lookup 'set',  'set'
     do_lookup 'SET',  'set'
     do_lookup 'show', 'show'
+    do_lookup 'showme', nil, true
     do_lookup 'sh',   'show'
     do_lookup 'e',    'edit'
     do_lookup 'ed',   'edit'
-    do_lookup 's',    [%w( set show )], true
+    do_lookup 's',    [%w( set show )], nil, true
   end
 
   def test_lookup_exact
     @keywords = %w( email emails reason reasons )
     do_lookup 'email',  'email'
     do_lookup 'emails', 'emails'
-    do_lookup 'emai',   'email',  true
-    do_lookup 'rea',    'reason', true
+    do_lookup 'emai',   'email',  nil, true
+    do_lookup 'rea',    'reason', nil, true
     do_lookup 'reason', 'reason'
     do_lookup 'reasons', 'reasons'
   end
