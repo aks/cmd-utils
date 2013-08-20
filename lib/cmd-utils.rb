@@ -182,7 +182,11 @@ def safe_run cmd=nil
 end
 
 ## 
-# result = lookup list, key, err_notfound="%s not found", err_ambig="% is ambiguous"
+# :call-seq:
+#     result = lookup list, key, err_notfound="%s not found", err_ambig="% is ambiguous"
+#     result = list.lookup( key, err_notfound, err_ambig )
+#     result = list.lookup( key, err_notfound )
+#     result = list.lookup( key )
 #
 # Lookup key in list, which is an array (or hash).  Return the one that matches
 # unambiguously, or report an error.
@@ -191,8 +195,12 @@ end
 #
 # If err_ambigmsg is nil, return the list of possible results.
 
-def lookup list, key, err_notfound="%s not found", err_ambig="%s is ambiguous"
-  keys = list.grep(/^#{key}/i)
+def key_lookup list, key, err_notfound="%s not found\n", err_ambig="%s is ambiguous\n"
+  keylist = list.keys if list.class == Hash
+  if exact = keylist.grep(/^#{key}$/i)         # exact matche?
+    return exact 
+  end
+  keys = keylist.grep(/^#{key}/i)
   case keys.size
   when 0
     unless err_notfound.nil?
@@ -208,6 +216,15 @@ def lookup list, key, err_notfound="%s not found", err_ambig="%s is ambiguous"
     return keys
   end
 end
+
+alias lookup key_lookup
+
+class Array
+  def lookup key, err_notfound="%s not found\n", err_ambig="%s is ambiguous\n"
+    key_lookup self, key, err_notfound, err_ambig
+  end
+end
+    
 
 # end of cmd-utils.sh
 # vim: set ai sw=2

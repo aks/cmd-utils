@@ -203,30 +203,4 @@ class TestCmdUtils < MiniTest::Test
     gen_test('nrtalkf_default_content', 0, 0, 1, "-hello-") { nrtalkf         { "hello" } }
   end
 
-  ############################################################
-
-  def lookup_test input, output, errok=nil
-    found = nil
-    out, err = capture_io { found = lookup(@keywords, input) }
-    if errok
-      refute_empty err
-    else
-      assert_empty err
-      assert_equal found, output
-    end
-    true
-  end
-
-  def test_lookup
-    @keywords = %w( set get show edit reset delete count )
-    lookup_test 'se',   'set'
-    lookup_test 'set',  'set'
-    lookup_test 'SET',  'set'
-    lookup_test 'show', 'show'
-    lookup_test 'sh',   'show'
-    lookup_test 'e',    'edit'
-    lookup_test 'ed',   'edit'
-    lookup_test 's',    %w( set show )
-  end
-
 end
