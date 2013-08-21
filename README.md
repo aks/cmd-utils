@@ -67,6 +67,11 @@ the method returns without invoking `cmd`.
 When `$norun` is false, then, if `$verbose` is set, the `cmd` is displayed with
 a prefix of `">> "` before executing it.
 
+Note that the block form of run (e.g., `run { cmd }`), the result of the block 
+should be a string to be passed to the system command.  The block will always
+be evaluated in order to obtain the string value that will be printed in `$norun`
+mode.
+
 Finally, the `system` method is invoked on `cmd`.  If the exit code of the invoked
 `cmd` is non-zero, an error message is printed.
 

@@ -162,7 +162,8 @@ end
 # not set, then show the error code.
 #
 # The `cmd` can be given either as an argument, or as the returned value from a
-# block.
+# block.  Important: the block should return a string value to be passed to 
+# the system call.
 
 def run cmd=nil
   cmd ||= block_given? && yield
