@@ -5,13 +5,14 @@
 #
 #    require 'cmd-utils'
 # 
-# Utilities for output, and running commands.
+# Utilities for option-controlled output, and running commands.
 #
 # The output and run methods rely on some external variables:
 #
-#    $verbose -- causes certain commands to talk more
-#    $norun   -- causes the "run" command to print its argument, but not actually run it.
-#    $quiet   -- causes certain commands to talk less
+#    $verbose -- enables vtalk(f) output
+#    $norun   -- enables nrtalk(f) output and controls the "run" command
+#    $quiet   -- enables qtalk(f) output, and disables talk(f) output
+#    $debug   -- enables dtalk(f) output
 #
 # These routines provide conditional output.  The arguments can be given as part of the
 # the function calls, or, can be provided as the return value of a block.  The advantage
@@ -34,13 +35,43 @@ def talk msg=nil
   end
 end
 
-def talkf fmt='%s', *args
-  args = yield if args.size == 0 && block_given?
-  talk { sprintf(fmt, *args) }
+def talkf *args
+  talk { sprintf(*_args(args, block_given?) { yield } ) }
+end
+
+# _args(args, block_given?) { yield }
+#
+# Internal arguments management routine
+
+def _args args, flag
+  args.concat(yield.to_a) if flag
+  args.unshift('%s') if args.size < 2
+  args
 end
 
 ##
-# qtalk - Print msg on STDERR only if `$quiet` is set
+# dtalk - "debug talk" 
+# Print msg on STDERR only if `$debug` is set
+#
+# :call-seq:
+#     dtalk   msg
+#     dtalk { msg }
+#     dtalkf fmt,    args ..
+#     dtalkf fmt { [ args .. ] }
+
+def dtalk msg=nil
+  if $debug && (msg || block_given?)
+    $stderr.puts(msg || yield)
+  end
+end
+
+def dtalkf *args 
+  dtalk { sprintf(*_args(args, block_given?) { yield } ) }
+end
+
+##
+# qtalk - "quiet talk"
+# print msg on STDERR only if `$quiet` is set
 #
 # :call-seq:
 #     qtalk   msg
@@ -54,13 +85,13 @@ def qtalk msg=nil
   end
 end
 
-def qtalkf fmt='%s', *args 
-  args = yield if args.size == 0 && block_given?
-  qtalk { sprintf(fmt, *args) }
+def qtalkf *args 
+  qtalk { sprintf(*_args(args, block_given?) { yield } ) }
 end
 
 ##
-# vtalk -- Print msg on STDERR if `$verbose` is set
+# vtalk - "verbose talk"
+# Print msg on STDERR if `$verbose` is set
 #
 # :call-seq:
 #     vtalk   msg
@@ -74,13 +105,13 @@ def vtalk msg=nil
   end
 end
 
-def vtalkf fmt='%s', *args
-  args = yield if args.size == 0 && block_given?
-  vtalk { sprintf(fmt, *args) }
+def vtalkf *args
+  vtalk { sprintf(*_args(args, block_given?) { yield } ) }
 end
 
 ##
-# nvtalk -- Print msg on STDERR unless `$verbose` is set
+# nvtalk -- "non-verbose" talk
+# Print msg on STDERR unless `$verbose` is set
 #
 # :call-seq:
 #     nvtalk msg
@@ -92,13 +123,13 @@ def  nvtalk msg=nil
   end
 end
 
-def nvtalkf fmt='%s', *args
-  args = yield if args.size == 0 && block_given?
-  nvtalk { sprintf(fmt, *args) }
+def nvtalkf *args
+  nvtalk { sprintf(*_args(args, block_given?) { yield } ) }
 end
 
 ##
-# nrtalk -- Print msg on STDERR only if `$norun` is set
+# nrtalk -- "no run" talk
+# Print msg, prefixed with "(norun) ", on STDERR only if `$norun` is set
 #
 # :call-seq:
 #     nrtalk        msg
@@ -108,33 +139,45 @@ end
 
 def nrtalk msg=nil
   if $norun
-    $stderr.puts(msg || yield)
+    msg ||= yield
+    msg = '(norun) ' + msg unless msg.include?("(norun)")
+    $stderr.puts(msg)
   end
 end
 
 def nrtalkf *args
-  args = yield if args.size == 0 && block_given?
-  nrtalk { sprintf(*args) }
+  nrtalk { sprintf(*_args(args, block_given?) { yield } ) }
 end
 
 ##
 # error -- print an error message on STDERR, and then exit.
 # :call-seq:
-#     error [code], msg
-#     errof [code], fmt, args
+#     error   [code],   msg
+#     error(  [code]) { msg }
+#     error {[[code],   msg ] }
 #
 # Code defaults to 1 if not given.
 
 def error *args
-  args = yield if args.size == 0 && block_given?
+  args.concat(yield.to_a)  if block_given?
   code = args.size > 0 && args[0].class == Fixnum ? args.shift : 1
   $stderr.puts(*args)
   $stderr.flush
   exit code
 end
 
+##
+# errorf -- print a formatted message on STDERR, and then exit
+#
+# :call-seq:
+#     errorf   [code],   fmt,   args ..
+#     errorf(  [code],   fmt) { args .. }
+#     errorf(  [code]) { fmt,   args .. }
+#     errorf {[[code],   fmt,   args .. ] }
+
 def errorf *args
-  args = yield if args.size == 0 && block_given?
+  args.concat(yield.to_a) if block_given?
+  # default the error code to 1 unless the first argument is a Fixnum
   code = args.size > 0 && args[0].class == Fixnum ? args.shift : 1
   $stderr.printf(*args)
   $stderr.flush
@@ -168,7 +211,7 @@ end
 def run cmd=nil
   cmd ||= block_given? && yield
   if $norun
-    $stderr.printf "(norun) %s\n", cmd
+    nrtalk cmd
   else
     safe_run cmd
   end
@@ -176,10 +219,10 @@ end
 
 def safe_run cmd=nil
   cmd ||= block_given? && yield
-  vtalkf { [ ">> %s\n", cmd ] }
+  vtalkf ">> %s\n", cmd
   system cmd
   if $? > 0
-    qtalkf { [ ">> %s\n", cmd ] }
+    qtalkf ">> %s\n", cmd
     errorf $?, "Command failed with code %d!\n", $?
   end
 end

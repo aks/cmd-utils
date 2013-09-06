@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'cmd-utils'
-  s.version     = '1.0.7'
+  s.version     = '1.0.8'
   s.date        = '2013-08-21'
   s.summary     = "Utilities for ruby command line scripts"
   s.description = "Some handy utilities for writing command line scripts in ruby."
