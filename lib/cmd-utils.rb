@@ -24,27 +24,37 @@
 # talk - Print msg on STDERR unless `$quiet` is set
 #
 # :call-seq:
-#    talk        msg
-#    talk      { msg }
+#    talk        msg ..
+#    talk      { msg .. }
 #    talkf fmt, args ...
 #    talkf fmt { [ args ... ] }
 
-def talk msg=nil
-  if !$quiet && (msg || block_given?)
-    $stderr.puts(msg || yield)
+def talk *args
+  if !$quiet && (args.size > 0 || block_given?)
+    $stderr.puts(*_msgargs(args, block_given?) { yield })
   end
 end
 
 def talkf *args
-  talk { sprintf(*_args(args, block_given?) { yield } ) }
+  talk { sprintf(*_fmtargs(args, block_given?) { yield } ) }
 end
 
-# _args(args, block_given?) { yield }
+# _msgargs(args, block_given?) { yield }
 #
-# Internal arguments management routine
+# merge args with any block results
 
-def _args args, flag
-  args.concat(yield.to_a) if flag
+def _msgargs args, flag
+  args.concat([yield].flatten) if flag
+  args
+end
+
+# _fmtargs(args, block_given?) { yield }
+#
+# merge args with any block results
+# provide default format string if only one argument
+
+def _fmtargs args, flag
+  args.concat([yield].flatten) if flag
   args.unshift('%s') if args.size < 2
   args
 end
@@ -59,14 +69,14 @@ end
 #     dtalkf fmt,    args ..
 #     dtalkf fmt { [ args .. ] }
 
-def dtalk msg=nil
-  if $debug && (msg || block_given?)
-    $stderr.puts(msg || yield)
+def dtalk *args
+  if $debug && (args.size > 0 || block_given?)
+    $stderr.puts(*_msgargs(args, block_given?) { yield })
   end
 end
 
 def dtalkf *args 
-  dtalk { sprintf(*_args(args, block_given?) { yield } ) }
+  dtalk { sprintf(*_fmtargs(args, block_given?) { yield } ) }
 end
 
 ##
@@ -79,14 +89,14 @@ end
 #     qtalkf fmt,    args ..
 #     qtalkf fmt { [ args .. ] }
 
-def qtalk msg=nil
-  if $quiet && (msg || block_given?)
-    $stderr.puts(msg || yield)
+def qtalk *args
+  if $quiet && (args.size > 0 || block_given?)
+    $stderr.puts(*_msgargs(args, block_given?) { yield })
   end
 end
 
 def qtalkf *args 
-  qtalk { sprintf(*_args(args, block_given?) { yield } ) }
+  qtalk { sprintf(*_fmtargs(args, block_given?) { yield } ) }
 end
 
 ##
@@ -99,14 +109,14 @@ end
 #     vtalkf fmt, args ..
 #     vtalkf fmt { args .. }
 
-def vtalk msg=nil
-  if $verbose && (msg || block_given?)
-    $stderr.puts(msg || yield)
+def vtalk *args
+  if $verbose && (args.size > 0 || block_given?)
+    $stderr.puts(*_msgargs(args, block_given?) { yield })
   end
 end
 
 def vtalkf *args
-  vtalk { sprintf(*_args(args, block_given?) { yield } ) }
+  vtalk { sprintf(*_fmtargs(args, block_given?) { yield } ) }
 end
 
 ##
@@ -117,14 +127,14 @@ end
 #     nvtalk msg
 #     nvtalk { msg }
 
-def  nvtalk msg=nil
-  unless $verbose && (msg || block_given?)
-    $stderr.puts(msg || yield)
+def  nvtalk *args
+  unless $verbose && (args.size > 0 || block_given?)
+    $stderr.puts(*_msgargs(args, block_given?) { yield })
   end
 end
 
 def nvtalkf *args
-  nvtalk { sprintf(*_args(args, block_given?) { yield } ) }
+  nvtalk { sprintf(*_fmtargs(args, block_given?) { yield } ) }
 end
 
 ##
@@ -137,16 +147,16 @@ end
 #     nrtalkf fmt,  msg
 #     nrtalkf fmt { msg }
 
-def nrtalk msg=nil
-  if $norun
-    msg ||= yield
-    msg = '(norun) ' + msg unless msg.include?("(norun)")
-    $stderr.puts(msg)
+def nrtalk *args
+  if $norun && (args.size > 0 || block_given?)
+    newargs = _msgargs(args, block_given?) { yield }
+    newargs[0] = '(norun) ' + newargs[0] unless newargs.size == 0 || newargs[0].nil? || newargs[0].include?('(norun)')
+    $stderr.puts(*newargs)
   end
 end
 
 def nrtalkf *args
-  nrtalk { sprintf(*_args(args, block_given?) { yield } ) }
+  nrtalk { sprintf(*_fmtargs(args, block_given?) { yield } ) }
 end
 
 ##
@@ -159,7 +169,7 @@ end
 # Code defaults to 1 if not given.
 
 def error *args
-  args.concat(yield.to_a)  if block_given?
+  args = _msgargs(args, block_given?) { yield }
   code = args.size > 0 && args[0].class == Fixnum ? args.shift : 1
   $stderr.puts(*args)
   $stderr.flush
@@ -176,7 +186,7 @@ end
 #     errorf {[[code],   fmt,   args .. ] }
 
 def errorf *args
-  args.concat(yield.to_a) if block_given?
+  args = _fmtargs(args, block_given?) { yield }
   # default the error code to 1 unless the first argument is a Fixnum
   code = args.size > 0 && args[0].class == Fixnum ? args.shift : 1
   $stderr.printf(*args)
