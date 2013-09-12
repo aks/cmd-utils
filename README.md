@@ -166,4 +166,4 @@ of possible results.
 Author
 ------
 
-lan K. Stebbens <aks@stebbens.org>
+Alan K. Stebbens <aks@stebbens.org>
