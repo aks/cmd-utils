@@ -12,6 +12,13 @@ Usage:
     require 'cmd-utils'
     require 'lookup'
 
+This gem provides:
+
+* routines for output on `$stderr`, controlled by several global variables
+* error-reporting-and-exit
+* system call handling, with verbose or debug output, error and "ok" message handling
+* ambiguous, case-insensitive string lookups in arrays or hashs, with error handling
+
 talk, dtalk, qtalk, vtalk, nrtalk, nvtalk
 =========================================
 
@@ -85,32 +92,44 @@ Error output:
 The `error` routine take an optional numeric first argument which is used to
 set the exit code.  If not given, the exit code is 1.
 
-run
-===
+`cmd_run` ========
 
-The `run` method depends on the `$norun` and `$verbose` global variables.  if
-`$norun` is set, the `cmd` is simply displayed with a prefix of `(norun) `, and
-the method returns without invoking `cmd`.
+    cmd_run     cmd 
+    cmd_run   { cmd }
 
-When `$norun` is false, then, if `$verbose` is set, the `cmd` is displayed with
+Variants:
+
+    cmd_run     cmd,     errmsg 
+    cmd_run     cmd,     errmsg, okmsg 
+    cmd_run    (cmd) { [ errmsg, okmsg ] } 
+    cmd_run { [ cmd,     errmsg, okmsg ] }
+
+The `cmd_run` method depends on the `$norun` and `$verbose` global variables.
+If `$norun` is set, the `cmd` is simply displayed with a prefix of `(norun) `,
+and the method returns without invoking `cmd`.
+
+When `$norun` is false, and if `$verbose` is set, the `cmd` is displayed with
 a prefix of `">> "` before executing it.
 
-Note that the block form of run (e.g., `run { cmd }`), the result of the block 
-should be a string to be passed to the system command.  The block will always
-be evaluated in order to obtain the string value that will be printed in `$norun`
-mode.
+If result of invoking `system(cmd)` is an error (non-zero exit code), then an
+error is printed on `$stderr`, possibly preceded by the command itself if it
+was not already printed.
 
-Finally, the `system` method is invoked on `cmd`.  If the exit code of the invoked
-`cmd` is non-zero, an error message is printed.
-
-    run        cmd
-    run      { cmd }
+Note that when using the block forms of run (e.g., `run { cmd }`), the result
+of the block should be an array of one or more strings, in the same order as
+the arguments. The block will always be evaluated in order to obtain the string
+values that will be printed in `$norun` mode, or used as the error or ok
+messages.
 
 The `safe_run` method invokes `cmd`, regardless of `$norun`, basically wrapping the 
 command evaluation with the `$verbose` treatment.
 
     safe_run   cmd
+    safe_run   cmd,   errmsg
+    safe_run   cmd,   errmsg,  okmsg
+    safe_run  (cmd) {[errmsg,  okmsg]}
     safe_run { cmd } 
+    safe_run {[cmd, errmsg, okmsg]} 
 
 lookup
 ======
@@ -147,4 +166,4 @@ of possible results.
 Author
 ------
 
-Alan K. Stebbens <aks@stebbens.org>
+lan K. Stebbens <aks@stebbens.org>

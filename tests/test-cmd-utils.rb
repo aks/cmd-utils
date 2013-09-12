@@ -2,7 +2,7 @@
 # test-cmd-utils.rb -- simple tester for cmd-utils
 #
 require 'rubygems'
-require 'minitest'
+#require 'minitest'
 require 'minitest/autorun'
 require 'cmd-utils'
 
@@ -18,17 +18,38 @@ class TestCmdUtils < MiniTest::Test
     $debug   = flags.include?('d')
     out, err = capture_io { yield }
     assert_empty(out, "#{name} $stdout should be empty")
-    case output
-    when TrueClass
-      refute_empty(err, "#{name} $stderr should not be empty")
-    when FalseClass
-      assert_empty(err, "#{name} $stderr should be empty")
-    when String
-      assert_match(out, output, "#{name} $stderr should match #{output}")
+    io_assert :stderr, name, err, output
+  end
+
+  def run_test name, flags, output=nil, errput=nil
+    $norun   = flags.include?('n')
+    $verbose = flags.include?('v')
+    $quiet   = flags.include?('q')
+    $debug   = flags.include?('d')
+    begin
+      out, err = capture_subprocess_io do
+        begin
+          yield 
+        rescue 
+        end 
+      end
+    rescue
     end
+    io_assert :stdout, name, out, output
+    io_assert :stderr, name, err, errput
     true
   end
 
+  def io_assert ioname, name, actual, expected
+    if expected
+      case expected
+      when TrueClass  then refute_empty(actual, "#{name} $#{ioname} should not be empty")
+      when FalseClass then assert_empty(actual, "#{name} $#{ioname} should be empty")
+      when String     then assert_match(actual, expected, "#{name} $#{ioname}: expected '#{expected}', got: '#{actual}'")
+      end
+    end
+    true
+  end
 
   def test_talk_arg
     gen_test('talk_arg', '    ', true)    { talk "hello" }
@@ -42,19 +63,19 @@ class TestCmdUtils < MiniTest::Test
   end
 
   def test_talk_content
-    gen_test('talk_content',       '    ', "hello") { talk "hello" }
-    gen_test('talk_content_block', '    ', "hello") { talk { "hello" } }
+    gen_test('talk_content',       '    ', "hello\n") { talk "hello" }
+    gen_test('talk_content_block', '    ', "hello\n") { talk { "hello" } }
   end
 
   def test_talk_block
-    gen_test('talk', '    ', "hello") { talk { "hello" } }
-    gen_test('talk', '  q ', false)   { talk { "hello" } }
-    gen_test('talk', ' v  ', "hello") { talk { "hello" } }
-    gen_test('talk', ' vq ', false)   { talk { "hello" } }
-    gen_test('talk', 'n   ', "hello") { talk { "hello" } }
-    gen_test('talk', 'n q ', false)   { talk { "hello" } }
-    gen_test('talk', 'nv  ', "hello") { talk { "hello" } }
-    gen_test('talk', 'nvq ', false)   { talk { "hello" } }
+    gen_test('talk', '    ', "hello\n") { talk { "hello" } }
+    gen_test('talk', '  q ', false)     { talk { "hello" } }
+    gen_test('talk', ' v  ', "hello\n") { talk { "hello" } }
+    gen_test('talk', ' vq ', false)     { talk { "hello" } }
+    gen_test('talk', 'n   ', "hello\n") { talk { "hello" } }
+    gen_test('talk', 'n q ', false)     { talk { "hello" } }
+    gen_test('talk', 'nv  ', "hello\n") { talk { "hello" } }
+    gen_test('talk', 'nvq ', false)     { talk { "hello" } }
   end
 
   def test_talkf_arg
@@ -90,32 +111,32 @@ class TestCmdUtils < MiniTest::Test
   end
 
   def test_qtalk_arg
-    gen_test('qtalk', '    ', false)   { qtalk "hello" }
-    gen_test('qtalk', '  q ', "hello") { qtalk "hello" }
-    gen_test('qtalk', ' v  ', false)   { qtalk "hello" }
-    gen_test('qtalk', ' vq ', "hello") { qtalk "hello" }
-    gen_test('qtalk', 'n   ', false)   { qtalk "hello" }
-    gen_test('qtalk', 'n q ', "hello") { qtalk "hello" }
-    gen_test('qtalk', 'nv  ', false)   { qtalk "hello" }
-    gen_test('qtalk', 'nvq ', "hello") { qtalk "hello" }
+    gen_test('qtalk', '    ', false)     { qtalk "hello" }
+    gen_test('qtalk', '  q ', "hello\n") { qtalk "hello" }
+    gen_test('qtalk', ' v  ', false)     { qtalk "hello" }
+    gen_test('qtalk', ' vq ', "hello\n") { qtalk "hello" }
+    gen_test('qtalk', 'n   ', false)     { qtalk "hello" }
+    gen_test('qtalk', 'n q ', "hello\n") { qtalk "hello" }
+    gen_test('qtalk', 'nv  ', false)     { qtalk "hello" }
+    gen_test('qtalk', 'nvq ', "hello\n") { qtalk "hello" }
   end
 
   def test_qtalk_block
-    gen_test('qtalk', '    ', false)   { qtalk { "hello" } }
-    gen_test('qtalk', '  q ', "hello") { qtalk { "hello" } }
-    gen_test('qtalk', ' v  ', false)   { qtalk { "hello" } }
-    gen_test('qtalk', ' vq ', "hello") { qtalk { "hello" } }
-    gen_test('qtalk', 'n   ', false)   { qtalk { "hello" } }
-    gen_test('qtalk', 'n q ', "hello") { qtalk { "hello" } }
-    gen_test('qtalk', 'nv  ', false)   { qtalk { "hello" } }
-    gen_test('qtalk', 'nvq ', "hello") { qtalk { "hello" } }
+    gen_test('qtalk', '    ', false)     { qtalk { "hello" } }
+    gen_test('qtalk', '  q ', "hello\n") { qtalk { "hello" } }
+    gen_test('qtalk', ' v  ', false)     { qtalk { "hello" } }
+    gen_test('qtalk', ' vq ', "hello\n") { qtalk { "hello" } }
+    gen_test('qtalk', 'n   ', false)     { qtalk { "hello" } }
+    gen_test('qtalk', 'n q ', "hello\n") { qtalk { "hello" } }
+    gen_test('qtalk', 'nv  ', false)     { qtalk { "hello" } }
+    gen_test('qtalk', 'nvq ', "hello\n") { qtalk { "hello" } }
   end
 
   def test_qtalk_content
-    gen_test('qtalk_content', 'q', "hello") { qtalk "hello" }
-    gen_test('qtalk_content', ' ',  false)  { qtalk "hello" }
-    gen_test('qtalk_content', 'q', "hello") { qtalk { "hello" } }
-    gen_test('qtalk_content', ' ',  false)  { qtalk { "hello" } }
+    gen_test('qtalk_content', 'q', "hello\n") { qtalk "hello" }
+    gen_test('qtalk_content', ' ',  false)    { qtalk "hello" }
+    gen_test('qtalk_content', 'q', "hello\n") { qtalk { "hello" } }
+    gen_test('qtalk_content', ' ',  false)    { qtalk { "hello" } }
   end
 
   def test_qtalkf_content
@@ -131,36 +152,36 @@ class TestCmdUtils < MiniTest::Test
   end
 
   def test_vtalk_arg
-    gen_test('vtalk_arg', '    ', false)   { vtalk "hello" }
-    gen_test('vtalk_arg', '  q ', false)   { vtalk "hello" }
-    gen_test('vtalk_arg', ' v  ', "hello") { vtalk "hello" }
-    gen_test('vtalk_arg', ' vq ', "hello") { vtalk "hello" }
-    gen_test('vtalk_arg', 'n   ', false)   { vtalk "hello" }
-    gen_test('vtalk_arg', 'n q ', false)   { vtalk "hello" }
-    gen_test('vtalk_arg', 'nv  ', "hello") { vtalk "hello" }
-    gen_test('vtalk_arg', 'nvq ', "hello") { vtalk "hello" }
+    gen_test('vtalk_arg', '    ', false)     { vtalk "hello" }
+    gen_test('vtalk_arg', '  q ', false)     { vtalk "hello" }
+    gen_test('vtalk_arg', ' v  ', "hello\n") { vtalk "hello" }
+    gen_test('vtalk_arg', ' vq ', "hello\n") { vtalk "hello" }
+    gen_test('vtalk_arg', 'n   ', false)     { vtalk "hello" }
+    gen_test('vtalk_arg', 'n q ', false)     { vtalk "hello" }
+    gen_test('vtalk_arg', 'nv  ', "hello\n") { vtalk "hello" }
+    gen_test('vtalk_arg', 'nvq ', "hello\n") { vtalk "hello" }
   end
 
   def test_vtalk_block
-    gen_test('vtalk_block', '    ', false)   { vtalk { "hello" } }
-    gen_test('vtalk_block', '  q ', false)   { vtalk { "hello" } }
-    gen_test('vtalk_block', ' v  ', "hello") { vtalk { "hello" } }
-    gen_test('vtalk_block', ' vq ', "hello") { vtalk { "hello" } }
-    gen_test('vtalk_block', 'n   ', false)   { vtalk { "hello" } }
-    gen_test('vtalk_block', 'n q ', false)   { vtalk { "hello" } }
-    gen_test('vtalk_block', 'nv  ', "hello") { vtalk { "hello" } }
-    gen_test('vtalk_block', 'nvq ', "hello") { vtalk { "hello" } }
+    gen_test('vtalk_block', '    ', false)     { vtalk { "hello" } }
+    gen_test('vtalk_block', '  q ', false)     { vtalk { "hello" } }
+    gen_test('vtalk_block', ' v  ', "hello\n") { vtalk { "hello" } }
+    gen_test('vtalk_block', ' vq ', "hello\n") { vtalk { "hello" } }
+    gen_test('vtalk_block', 'n   ', false)     { vtalk { "hello" } }
+    gen_test('vtalk_block', 'n q ', false)     { vtalk { "hello" } }
+    gen_test('vtalk_block', 'nv  ', "hello\n") { vtalk { "hello" } }
+    gen_test('vtalk_block', 'nvq ', "hello\n") { vtalk { "hello" } }
   end
 
   def test_nvtalk_arg
-    gen_test('nvtalk_arg', '    ', "hello")  { nvtalk "hello" }
-    gen_test('nvtalk_arg', '  q ', "hello")  { nvtalk "hello" }
-    gen_test('nvtalk_arg', ' v  ', false)    { nvtalk "hello" }
-    gen_test('nvtalk_arg', ' vq ', false)    { nvtalk "hello" }
-    gen_test('nvtalk_arg', 'n   ', "hello")  { nvtalk "hello" }
-    gen_test('nvtalk_arg', 'n q ', "hello")  { nvtalk "hello" }
-    gen_test('nvtalk_arg', 'nv  ', false)    { nvtalk "hello" }
-    gen_test('nvtalk_arg', 'nvq ', false)    { nvtalk "hello" }
+    gen_test('nvtalk_arg', '    ', "hello\n")  { nvtalk "hello" }
+    gen_test('nvtalk_arg', '  q ', "hello\n")  { nvtalk "hello" }
+    gen_test('nvtalk_arg', ' v  ', false)      { nvtalk "hello" }
+    gen_test('nvtalk_arg', ' vq ', false)      { nvtalk "hello" }
+    gen_test('nvtalk_arg', 'n   ', "hello\n")  { nvtalk "hello" }
+    gen_test('nvtalk_arg', 'n q ', "hello\n")  { nvtalk "hello" }
+    gen_test('nvtalk_arg', 'nv  ', false)      { nvtalk "hello" }
+    gen_test('nvtalk_arg', 'nvq ', false)      { nvtalk "hello" }
   end
 
   def test_nvtalk_block
@@ -186,9 +207,9 @@ class TestCmdUtils < MiniTest::Test
   end
 
   def test_nrtalk_prefix
-    gen_test('nrtalk_prefix', 'n   ', "(norun) hello")      { nrtalk "hello" }
+    gen_test('nrtalk_prefix', 'n   ', "(norun) hello\n")    { nrtalk "hello" }
     gen_test('nrtalk_prefix', '    ', false)                { nrtalk "hello" }
-    gen_test('nrtalk_prefix', 'n   ', "(norun) hello")      { nrtalk { "hello" } }
+    gen_test('nrtalk_prefix', 'n   ', "(norun) hello\n")    { nrtalk { "hello" } }
     gen_test('nrtalk_prefix', '    ', false)                { nrtalk { "hello" } }
   end
 
@@ -204,10 +225,10 @@ class TestCmdUtils < MiniTest::Test
   end
 
   def test_nrtalkf_content
-    gen_test('nrtalkf_content',         'n   ', "-hello-") { nrtalkf "-%s-",   "hello" }
-    gen_test('nrtalkf_content',         'n   ', "-hello-") { nrtalkf("-%s-") { "hello" } }
-    gen_test('nrtalkf_default_content', 'n   ', "-hello-") { nrtalkf           "hello" }
-    gen_test('nrtalkf_default_content', 'n   ', "-hello-") { nrtalkf         { "hello" } }
+    gen_test('nrtalkf_content',         'n   ', "(norun) -hello-") { nrtalkf "-%s-",   "hello" }
+    gen_test('nrtalkf_content',         'n   ', "(norun) -hello-") { nrtalkf("-%s-") { "hello" } }
+    gen_test('nrtalkf_default_content', 'n   ', "(norun) hello")   { nrtalkf           "hello" }
+    gen_test('nrtalkf_default_content', 'n   ', "(norun) hello")   { nrtalkf         { "hello" } }
 
     gen_test('nrtalkf_content',         '    ', false)     { nrtalkf "-%s-",   "hello" }
     gen_test('nrtalkf_content',         '    ', false)     { nrtalkf("-%s-") { "hello" } }
@@ -218,8 +239,8 @@ class TestCmdUtils < MiniTest::Test
   def test_nrtalkf_prefix
     gen_test('nrtalkf_prefix',          'n   ', "(norun) -hello-") { nrtalkf "-%s-",   "hello" }
     gen_test('nrtalkf_prefix',          'n   ', "(norun) -hello-") { nrtalkf("-%s-") { "hello" } }
-    gen_test('nrtalkf_default_content', 'n   ', "(norun) -hello-") { nrtalkf           "hello" }
-    gen_test('nrtalkf_default_content', 'n   ', "(norun) -hello-") { nrtalkf         { "hello" } }
+    gen_test('nrtalkf_default_content', 'n   ', "(norun) hello")   { nrtalkf           "hello" }
+    gen_test('nrtalkf_default_content', 'n   ', "(norun) hello")   { nrtalkf         { "hello" } }
   end
 
   def test_dtalk_arg
@@ -271,5 +292,20 @@ class TestCmdUtils < MiniTest::Test
     gen_test('talkf_content',         '   ', "-hello-there-") { talkf("-%s-%s-", "hello") { "there" } }
     gen_test('talkf_content',         '   ', "-hello-there-") { talkf("-%s-%s-", "hello") { [ "there" ]  } }
     gen_test('talkf_default_content', '   ', "-hello-there-") { talkf { [ "-%s-%s-", "hello", "there" ] } }
+  end
+
+  def test_run_output
+    run_test("run 1", 'n', false,     "(norun) echo 'hello'\n") { cmd_run "echo 'hello'" }
+    run_test("run 2", 'v', "hello\n", ">> echo 'hello'\n")      { cmd_run "echo 'hello'" }
+    run_test("run 3", '',  "hello\n", false)                    { cmd_run "echo 'hello'" }
+    run_test("run 4", '',  false,     "hello\n")                { cmd_run "echo 'hello' 1>&2" }
+    run_test("run 5", '',  false,     false)                    { cmd_run "echo"        }
+  end
+
+  def test_run_errmsg
+    run_test("run 11", 'n', false,     "(norun) ( exit 1)\n")        { cmd_run "( exit 1)", 'error 11' }
+    run_test("run 12", 'v', false,     ">> ( exit 1)\nerror 12\n")   { cmd_run "( exit 1)", 'error 12' }
+    run_test("run 13", 'v', false,     ">> ( exit 0)\n")             { cmd_run "( exit 0)", 'no error 13' }
+    run_test("run 14", ' ', false,     false)                        { cmd_run "( exit 0)", 'no error 13' }
   end
 end
