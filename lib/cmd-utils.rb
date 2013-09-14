@@ -265,7 +265,7 @@ def safe_run *args
       return true
     else                        # an error occured
       qtalkf ">> %s\n", cmd
-      erm = sprintf (errmsg ? errmsg : "Command failed with code %d"), $?>>8
+      erm = sprintf(errmsg ? errmsg : "Command failed with code %d", $?>>8)
       $stderr.puts erm
       $stderr.flush
       raise SystemCallError, erm            # instead of exit, use raise
