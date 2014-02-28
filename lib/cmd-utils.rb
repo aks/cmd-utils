@@ -4,7 +4,7 @@
 #
 #
 #    require 'cmd-utils'
-# 
+#
 # Utilities for option-controlled output, and running commands.
 #
 # The output and run methods rely on some external variables:
@@ -14,11 +14,12 @@
 #    $quiet   -- enables qtalk(f) output, and disables talk(f) output
 #    $debug   -- enables dtalk(f) output
 #
-# These routines provide conditional output.  The arguments can be given as part of the
-# the function calls, or, can be provided as the return value of a block.  The advantage
-# of using a block is that the block is not evaluated unless the conditions requiring
-# output are met.  So, if the expression to compute a value that _might_ be printed is
-# expensive, do the computation inside a block.
+# These routines provide conditional output.  The arguments can be given as
+# part of the the function calls, or, can be provided as the return value of a
+# block.  The advantage of using a block is that the block is not evaluated
+# unless the conditions requiring output are met.  So, if the expression to
+# compute a value that _might_ be printed is expensive, do the computation
+# inside a block.
 #
 ##
 # talk - Print msg on STDERR unless `$quiet` is set
@@ -62,7 +63,7 @@ def _fmtargs args, flag
 end
 
 ##
-# dtalk - "debug talk" 
+# dtalk - "debug talk"
 # Print msg on STDERR only if `$debug` is set
 #
 # :call-seq:
@@ -77,9 +78,9 @@ def dtalk *args
   end
 end
 
-def dtalkf *args 
+def dtalkf *args
   if $debug && (args.size> 0 || block_given?)
-    $stderr.printf(*_fmtargs(args, block_given?) { yield }) 
+    $stderr.printf(*_fmtargs(args, block_given?) { yield })
   end
 end
 
@@ -99,7 +100,7 @@ def qtalk *args
   end
 end
 
-def qtalkf *args 
+def qtalkf *args
   if $quiet && (args.size > 0 || block_given?)
     $stderr.printf(*_fmtargs(args, block_given?) { yield } )
   end
@@ -222,6 +223,7 @@ end
 #     run      { [cmd, errmsg] }
 #     run      { [cmd, errmsg, okmg] }
 #     run         cmd, errmsg, okmsg
+#
 #     safe_run    cmd
 #     safe_run    cmd, errmsg
 #     safe_run    cmd, errmsg, okmsg
@@ -238,10 +240,10 @@ end
 #
 # If there is an error, show the command (preceded by `>> `) if `$verbose` is
 # not set, then show the error code, followed by the given `errmsg` or the
-# default error message.  
+# default error message.
 #
 # The `cmd` can be given either as an argument, or as the returned value from a
-# block.  Important: the block should return a string value to be passed to 
+# block.  Important: the block should return a string value to be passed to
 # the system call.
 
 def cmd_run *args
@@ -249,7 +251,7 @@ def cmd_run *args
   if $norun
     nrtalk(args.first)
   elsif args.size > 0
-    safe_run(*args)
+    safe_run *args
   end
 end
 
@@ -259,8 +261,8 @@ def safe_run *args
   args = _msgargs(args, block_given?) { yield }
   cmd, errmsg, okmsg = args
   vtalkf ">> %s\n", cmd
-  if cmd 
-    if system(cmd)              # invoke the command
+  if cmd
+    if system cmd              # invoke the command
       $stderr.puts okmsg if okmsg
       return true
     else                        # an error occured

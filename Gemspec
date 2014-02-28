@@ -1,13 +1,13 @@
 Gem::Specification.new do |s|
   s.name        = 'cmd-utils'
-  s.version     = '1.0.12'
-  s.date        = '2013-09-11'
+  s.version     = '1.1.0'
+  s.date        = '2014-02-27'
   s.summary     = "Utilities for ruby command line scripts"
   s.description = "Some handy utilities for writing command line scripts in ruby."
   s.author      = "Alan K. Stebbens"
   s.email       = 'aks@stebbens.org'
-  s.files       = ["lib/cmd-utils.rb", "lib/lookup.rb"]
+  s.files       = ["lib/cmd-utils.rb", "lib/lookup.rb", "lib/ssh-utils.rb"]
   s.test_files  = ['tests/test-cmd-utils.rb', 'tests/test-lookup.rb']
-  s.homepage    = 'http://gitlab.com/as/cmd-utils'
+  s.homepage    = 'http://bitbucket.org/aks_/cmd-utils'
   s.license     = 'GPL-2'
 end
