@@ -8,7 +8,7 @@ require 'cmd-utils'
 
 # these routines produce output on STDERR depending on $norun, $verbose, and $quiet.
 
-class TestCmdUtils < MiniTest::Test
+class TestCmdUtils < Minitest::Test
 
   #def gen_test name, norun, verbose, quiet, debug, output
   def gen_test name, flags, output
@@ -29,9 +29,9 @@ class TestCmdUtils < MiniTest::Test
     begin
       out, err = capture_subprocess_io do
         begin
-          yield 
-        rescue 
-        end 
+          yield
+        rescue
+        end
       end
     rescue
     end

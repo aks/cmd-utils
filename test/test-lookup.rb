@@ -8,18 +8,18 @@ require 'lookup'
 
 class NilClass ; def to_s ; '' ; end ; end
 
-class TestLookup < MiniTest::Test
+class TestLookup < Minitest::Test
 
   # do_lookup input-text, output-text, true-if-notfound, true-if-ambiguous
 
   def do_lookup input, output, notfound=nil, ambig=nil
     found = nil
     if notfound
-      assert_raises(LookupNotFoundError) { 
+      assert_raises(LookupNotFoundError) {
         found = lookup(@keywords, input)
       }
     elsif ambig
-      assert_raises(LookupAmbigError)    { 
+      assert_raises(LookupAmbigError)    {
         found = lookup(@keywords, input)
       }
     else
@@ -46,10 +46,18 @@ class TestLookup < MiniTest::Test
     @keywords = %w( email emails reason reasons )
     do_lookup 'email',  'email'
     do_lookup 'emails', 'emails'
-    do_lookup 'emai',   'email',  nil, true
-    do_lookup 'rea',    'reason', nil, true
+    do_lookup 'emai',   '',  nil, true   # ambiguous
+    do_lookup 'rea',    '',  nil, true   # ambiguous
     do_lookup 'reason', 'reason'
     do_lookup 'reasons', 'reasons'
+  end
+
+  def test_lookup_failures
+    @keywords = %w( set get show edit reset delete count )
+    do_lookup "s", nil, nil, true   # ambigous
+    do_lookup "foo", nil, true      # not found
+    do_lookup "showit", nil, true   # not found
+    do_lookup "rest",   nil, true   # not found
   end
 
 end
