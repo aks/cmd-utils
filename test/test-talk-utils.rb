@@ -1,55 +1,17 @@
 #!/usr/bin/env ruby
-# test-cmd-utils.rb -- simple tester for cmd-utils
+# test-talk-utils.rb -- simple tester for cmd-utils
 #
+$:.unshift '.', 'lib', '../lib'
 require 'rubygems'
-#require 'minitest'
-require 'minitest/autorun'
-require 'cmd-utils'
+require 'helper'
+
+require 'talk-utils'
 
 # these routines produce output on STDERR depending on $norun, $verbose, and $quiet.
 
-class TestCmdUtils < Minitest::Test
+class TestTalkUtils < Minitest::Test
 
-  #def gen_test name, norun, verbose, quiet, debug, output
-  def gen_test name, flags, output
-    $norun   = flags.include?('n')
-    $verbose = flags.include?('v')
-    $quiet   = flags.include?('q')
-    $debug   = flags.include?('d')
-    out, err = capture_io { yield }
-    assert_empty(out, "#{name} $stdout should be empty")
-    io_assert :stderr, name, err, output
-  end
-
-  def run_test name, flags, output=nil, errput=nil
-    $norun   = flags.include?('n')
-    $verbose = flags.include?('v')
-    $quiet   = flags.include?('q')
-    $debug   = flags.include?('d')
-    begin
-      out, err = capture_subprocess_io do
-        begin
-          yield
-        rescue
-        end
-      end
-    rescue
-    end
-    io_assert :stdout, name, out, output
-    io_assert :stderr, name, err, errput
-    true
-  end
-
-  def io_assert ioname, name, actual, expected
-    if expected
-      case expected
-      when TrueClass  then refute_empty(actual, "#{name} $#{ioname} should not be empty")
-      when FalseClass then assert_empty(actual, "#{name} $#{ioname} should be empty")
-      when String     then assert_match(actual, expected, "#{name} $#{ioname}: expected '#{expected}', got: '#{actual}'")
-      end
-    end
-    true
-  end
+  include Gen_Test
 
   def test_talk_arg
     gen_test('talk_arg', '    ', true)    { talk "hello" }
@@ -294,18 +256,5 @@ class TestCmdUtils < Minitest::Test
     gen_test('talkf_default_content', '   ', "-hello-there-") { talkf { [ "-%s-%s-", "hello", "there" ] } }
   end
 
-  def test_run_output
-    run_test("run 1", 'n', false,     "(norun) echo 'hello'\n") { cmd_run "echo 'hello'" }
-    run_test("run 2", 'v', "hello\n", ">> echo 'hello'\n")      { cmd_run "echo 'hello'" }
-    run_test("run 3", '',  "hello\n", false)                    { cmd_run "echo 'hello'" }
-    run_test("run 4", '',  false,     "hello\n")                { cmd_run "echo 'hello' 1>&2" }
-    run_test("run 5", '',  false,     false)                    { cmd_run "echo"        }
-  end
-
-  def test_run_errmsg
-    run_test("run 11", 'n', false,     "(norun) ( exit 1)\n")        { cmd_run "( exit 1)", 'error 11' }
-    run_test("run 12", 'v', false,     ">> ( exit 1)\nerror 12\n")   { cmd_run "( exit 1)", 'error 12' }
-    run_test("run 13", 'v', false,     ">> ( exit 0)\n")             { cmd_run "( exit 0)", 'no error 13' }
-    run_test("run 14", ' ', false,     false)                        { cmd_run "( exit 0)", 'no error 13' }
-  end
 end
+# end of test-talk-utils.rb

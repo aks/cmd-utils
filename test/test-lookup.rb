@@ -1,9 +1,11 @@
 #!/usr/bin/env ruby
 # test-cmd-utils.rb -- simple tester for cmd-utils
 #
+$:.unshift '.', 'lib'
+
 require 'rubygems'
-gem 'minitest'
-require 'minitest/autorun'
+require 'helper'
+
 require 'lookup'
 
 class NilClass ; def to_s ; '' ; end ; end

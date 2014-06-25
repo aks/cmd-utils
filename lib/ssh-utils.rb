@@ -9,16 +9,16 @@
 #
 #    require 'ssh-utils'
 #
-#    on serverlist, :debug = true do |server|
-#      as user do
-#        with PATH
+#    on SERVERLIST, :debug = true do |server|
+#      as USER do
+#        with PATH do
 #          remote_run :whoami
 #        end
 #      end
 #    end
 
 require 'rubygems'
-require 'cmd-utils'
+require 'talk-utils'
 
 module SSH_Utils
 
@@ -53,11 +53,19 @@ module SSH_Utils
     end
   end
 
+  # merge_opts_with_env opts
+  #
+  # Invokes merge_env, then merge_opts
+
+  def merge_opts_with_env opts = {}
+    merge_env (opts = opts.dup)
+    merge_opts opts
+  end
+
   # on SERVERLIST, :with => %w(PATH RUBYLIB), :debug => [true|false], :norun => [true|false]
 
   def on servers, opts = {}
-    merge_env (opts = opts.dup)
-    merge_opts opts
+    merge_opts_with_env opts
     (@servers = servers).each do |server|
       @server = server
       talk("--> Running block for server #{server}..") if @opts[:debug] || $debug
@@ -69,16 +77,15 @@ module SSH_Utils
 
   def as user, opts = {}
     @user = user
-    merge_env (opts = opts.dup)
-    merge_opts opts
+    merge_opts_with_env opts
     yield if block_given?
   end
 
   # with ENVARLIST, :VAR1 => value, :debug => ...
 
   def with env, opts = {}
-    merge_env (opts = opts.dup)
-    merge_opts opts
+    merge_opts_with_env opts
+    yield if block_given?
   end
 
   def ssh_command cmd
@@ -116,8 +123,7 @@ module SSH_Utils
 
 
   def remote_run_with_output cmd, opts = {}
-    merge_env (opts = opts.dup)
-    merge_opts opts
+    merge_opts_with_env opts
     ssh = ssh_command cmd
     _show_cmd ssh
     out = nil
@@ -131,4 +137,5 @@ end
 
 include SSH_Utils
 
+# end of ssh-utils.rb
 # vim: sw=2:ai

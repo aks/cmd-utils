@@ -1,19 +1,5 @@
-require 'simplecov'
+# test/helper.rb
 
-module SimpleCov::Configuration
-  def clean_filters
-    @filters = []
-  end
-end
-
-SimpleCov.configure do
-  clean_filters
-  load_adapter 'test_frameworks'
-end
-
-ENV["COVERAGE"] && SimpleCov.start do
-  add_filter "/.rvm/"
-end
 require 'rubygems'
 require 'bundler'
 begin
@@ -24,12 +10,60 @@ rescue Bundler::BundlerError => e
   exit e.status_code
 end
 require 'minitest'
-require 'test/unit'
-require 'shoulda'
+require 'minitest/autorun'
 
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
-require 'cmd-utils'
 
-class Test::Unit::TestCase
+module IO_Assert
+  def io_assert ioname, name, actual, expected
+    if expected
+      case expected
+      when TrueClass  then refute_empty(actual, "#{name} $#{ioname} should not be empty")
+      when FalseClass then assert_empty(actual, "#{name} $#{ioname} should be empty")
+      when String     then assert_match(actual, expected, "#{name} $#{ioname}: expected '#{expected}', got: '#{actual}'")
+      end
+    end
+    true
+  end
+end
+
+module Gen_Test
+  include IO_Assert
+
+  #def gen_test name, norun, verbose, quiet, debug, output
+  def gen_test name, flags, output
+    $norun   = flags.include?('n')
+    $verbose = flags.include?('v')
+    $quiet   = flags.include?('q')
+    $debug   = flags.include?('d')
+    out, err = capture_io { yield }
+    assert_empty(out, "#{name} $stdout should be empty")
+    io_assert :stderr, name, err, output
+  end
+end
+
+module Run_Test
+  include IO_Assert
+  def run_test name, flags, output=nil, errput=nil
+    $norun   = flags.include?('n')
+    $verbose = flags.include?('v')
+    $quiet   = flags.include?('q')
+    $debug   = flags.include?('d')
+    begin
+      out, err = capture_subprocess_io do
+        begin
+          yield
+        rescue
+        end
+      end
+    rescue
+    end
+    io_assert :stdout, name, out, output
+    io_assert :stderr, name, err, errput
+    true
+  end
+end
+
+class Minitest::Test
 end

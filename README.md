@@ -1,5 +1,4 @@
-cmd-utils
-=========
+# cmd-utils
 
 Utilities for writing command line tools in ruby.
 
@@ -9,27 +8,35 @@ Installation:
 
 Usage:
 
-    require 'cmd-utils'
-    require 'ssh-utils'
+    require 'cmd-utils'   # include all libraries in this repo
+
+or
+
+    require 'arg-utils'
+    require 'error-utils'
     require 'lookup'
+    require 'run-utils'
+    require 'ssh-utils'
+    require 'talk-utils'
 
 This gem provides:
 
-* routines for output on `$stderr`, controlled by several global variables
-* error-reporting-and-exit
-* system call handling, with verbose or debug output, error and "ok" message handling
-* remote system command invocation (based on ssh)
-* ambiguous, case-insensitive string lookups in arrays or hashs, with error handling
+* `arg-utils`: help manage variable argumentlists.
+* `talk-utils`: routines for output on `$stderr`, controlled by several global variables.
+* `error-utils`: error-reporting-and-exit.
+* `run-utils`: system call handling, with verbose or debug output, error and "ok" message handling.
+* `ssh-utils`: remote system command invocation (based on ssh).
+* `lookup`: ambiguous, case-insensitive string lookups in arrays or hashs, with error handling.
+* `cmd-utils`: includes all the above libraries.
 
-talk, dtalk, qtalk, vtalk, nrtalk, nvtalk
-=========================================
+## talk-utils: talk, dtalk, qtalk, vtalk, nrtalk, nvtalk
 
 These utilities provide simple utilities that rely on the following global variables:
 
-    `$verbose` -- enables vtalk(f) function output
-    `$norun`   -- enables nrtalk(f) output, and disables the "run" command execution
-    `$quiet`   -- disables talk(f) output, and enables qtalk(f) function output
-    `$debug`   -- enables dtalk(f) function output
+    $verbose -- enables vtalk(f) function output
+    $norun   -- enables nrtalk(f) output, and disables the run command execution
+    $quiet   -- disables talk(f) output, and enables qtalk(f) function output
+    $debug   -- enables dtalk(f) function output
 
 These routines provide option-controlled output.  The arguments can be given as
 part of the the function calls, or, can be provided as the return value of a
@@ -94,8 +101,26 @@ Error output:
 The `error` routine take an optional numeric first argument which is used to
 set the exit code.  If not given, the exit code is 1.
 
-`cmd_run` 
---------
+## error-utils: `error`, `errorf`
+
+The `error` and `errorf` family of methods make it easy display an error message
+and then exit, possibly with a specific error code.
+
+The arguments may be given as a parameters on the method, or as return values 
+from a yield block.
+
+    error   MSG
+    error  {MSG}
+    error  CODE,   MSG
+    error( CODE) { MSG }
+    error{ CODE,   MSG }
+
+    errorf  FMT, *ARGS
+    errorf( FMT){ ARGS }
+    errorf{ FMT,  ARGS  }
+
+
+## run-utils: `cmd_run`, `safe_run`
 
     cmd_run     cmd 
     cmd_run   { cmd }
@@ -134,11 +159,10 @@ command evaluation with the `$verbose` treatment.
     safe_run { cmd } 
     safe_run {[cmd, errmsg, okmsg]} 
 
-ssh-utils
-=========
+## ssh-utils
 
 A module to define some routines for running commands across many systems using
-ssh.  Environment variables can be specified (PATH is used by default).
+ssh.  Environment variables can be specified (`PATH` is used by default).
 
 Usage:
 
@@ -146,14 +170,13 @@ Usage:
 
     on serverlist, :debug = true do |server|
       as user do
-        with PATH
+        with PATH do
           remote_run :whoami
         end
       end
     end
 
-Method Descriptions
--------------------
+### `on`
 
     on SERVERLIST, OPTIONSHASH |server|
       BLOCK-TO-EXECUTE-FOR-EACH-SERVER
@@ -193,6 +216,7 @@ is globally available, but the `:debug` option is a block-local specification.
 Sets the `:verbose` flag for use within the associated block.  The `$verbose` flag
 is globally available, but the `:verbose` option is a block-local specification.
 
+### `as`
 
     as USERLIST, OPTIONSHASH
       BLOCK-TO-EXECUTE-FOR-EACH-USER
@@ -215,10 +239,18 @@ option.  For example, the following two sections are equivalent:
       remote_run :whoami
     end
 
+### `with`
 
+    as USERLIST, OPTIONSHASH do
+      with SOMEENVAR do
+        BLOCK-TO-EXECUTE-WITH-SOMEENVAR
+      end
+    end
 
-lookup
-======
+The `with` method is used to set additional environment variables, or to
+reset them.
+
+## lookup-utils:
 
 usage:
 
@@ -249,7 +281,6 @@ nil.
 If `err_ambigmsg` is nil, do not raise a `LookupAmbigError`, and return the list
 of possible results.
 
-Author
-------
+# Author
 
 Alan K. Stebbens <aks@stebbens.org>

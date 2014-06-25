@@ -3,7 +3,7 @@
 # Alan K. Stebbens <aks@stebbens.org>
 #
 #    require 'lookup'
-# 
+#
 # lookup - lookup a keyword in a list, in a case-insensitive, disambiguous way
 #
 # :call-seq:
@@ -69,3 +69,6 @@ class Hash
     self.keys.lookup(key, err_notfound, err_ambig)
   end
 end
+
+# end of lookup.rb
+# vim: set sw=2 ai
