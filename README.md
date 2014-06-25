@@ -54,49 +54,57 @@ Talk:
       talk    msg         - print msg on STDERR unless $quiet
       talk  { msg }
       talkf fmt,   args ..
-      talkf(fmt) { args .. }
+      talkf(fmt) {[args,..]}
 
 Debug talk:
 
      dtalk    msg         - print msg on STDERR if $debug
      dtalk  { msg }
      dtalkf fmt,   args ..
-     dtalkf(fmt) { args .. }
+     dtalkf(fmt) {[args,..]}
 
 Quiet talk:
 
      qtalk   msg         - print msg on STDERR if     $quiet
      qtalk { msg }
      qtalkf fmt,   args ..
-     qtalkf(fmt) { args .. }
+     qtalkf(fmt) {[args,..]}
 
 Verbose talk:
 
      vtalk   msg         - print msg on STDERR if     $verbose
      vtalk { msg }
      vtalkf fmt,   args ..
-     vtalkf(fmt) { args .. }
+     vtalkf(fmt) {[args,..]}
 
 No-run talk:
 
     nrtalk   msg         - print msg on STDERR if     $norun || $verbose
     nrtalk { msg }
     nrtalkf fmt,   args ..
-    nrtalkf(fmt) { args .. }
+    nrtalkf(fmt) {[args, ..]}
 
 Non-verbose talk:
 
     nvtalk   msg         - print msg on STDERR unless $verbose
     nvtalk { msg }
     nvtalkf fmt,   args ..
-    nvtalkf(fmt) { args .. }
+    nvtalkf(fmt) {[args ..]}
+
+No-run or verbose talk:
+
+    nvrtalk   msg         - print msg on STDERR prefixed with '(norun) ' or '>> '
+    nvrtalk { msg }
+    nvrtalkf fmt,    args ..
+    nvrtalkf(fmt) {[args, ..]}
+    nvrtalkf {[ fmt, args, ...]}
 
 Error output:
 
-    error      [code,] msg   - print msg on STDERR, exit with CODE [default:1]
-    error  { [ [code,] msg ] }
-    errorf     [code,] fmt, args ..
-    errorf { [ [code,] fmt, args .. ] }
+    error    [code,] msg   - print msg on STDERR, exit with CODE [default:1]
+    error  {[[code,] msg]}
+    errorf   [code,] fmt, args ..
+    errorf {[[code,] fmt, args ..]}
 
 The `error` routine take an optional numeric first argument which is used to
 set the exit code.  If not given, the exit code is 1.

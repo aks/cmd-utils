@@ -67,7 +67,7 @@ end
 def cmd_run *args
   args = _msgargs(args, block_given?) { yield }
   if $norun
-    nrtalk(args.first)
+    nrvtalk(args.first)
   elsif args.size > 0
     safe_run(*args)
   end

@@ -53,6 +53,7 @@ end
 #     dtalk { msg }
 #     dtalkf fmt,    args ..
 #     dtalkf fmt { [ args .. ] }
+#     dtalkf { [ fmt, args ..  ] }
 
 def dtalk *args
   if $debug && (args.size > 0 || block_given?)
@@ -75,6 +76,7 @@ end
 #     qtalk { msg }
 #     qtalkf fmt,    args ..
 #     qtalkf fmt { [ args .. ] }
+#     qtalkf { [ fmt, args, ... ] }
 
 def qtalk *args
   if $quiet && (args.size > 0 || block_given?)
@@ -97,6 +99,7 @@ end
 #     vtalk { msg }
 #     vtalkf fmt, args ..
 #     vtalkf fmt { args .. }
+#     vtalkf { [ fmt, args ... ] }
 
 def vtalk *args
   if $verbose && (args.size > 0 || block_given?)
@@ -139,21 +142,60 @@ end
 #     nrtalk      { msg }
 #     nrtalkf fmt,  msg
 #     nrtalkf fmt { msg }
+#     nrtalkf { [ fmt, msg ] }
 
 def nrtalk *args
   if $norun && (args.size > 0 || block_given?)
-    newargs = _msgargs(args, block_given?) { yield }
-    newargs[0] = '(norun) ' + newargs[0] unless newargs.size == 0 || newargs[0].nil? || newargs[0].include?('(norun)')
-    $stderr.puts(*newargs)
+    $stderr.puts(*_prefix_arg0(_msgargs(args, block_given?){yield},'(norun) '))
   end
 end
 
 def nrtalkf *args
   if $norun && (args.size > 0 || block_given?)
-    newargs = _fmtargs(args, block_given?) { yield }
-    newargs[0] = '(norun) ' + newargs[0] unless newargs.size == 0 || newargs[0].nil? || newargs[0].include?('(norun)')
-    $stderr.printf(*newargs)
+    $stderr.printf(*_prefix_arg0(_fmtargs(args, block_given?){yield},'(norun) '))
   end
+end
+
+# nrvtalk -- "no run" or verbose talk
+#
+# Print msg, possibly prefixed with "(norun)" or ">>" (verbose), on STDERR only
+# if $norun or $verbose are set.
+#
+# :call-seq:
+#     nrvtalk          msg
+#     nrvtalk        { msg }
+#     nrvtalkf   fmt,    args, ..
+#     nrvtalkf   fmt { [ args, ..] }
+#     nrvtalkf { [ fmt,  args .. ] }
+
+def nrvtalk *args
+  _args = _msgargs(args, block_given?) { yield }
+  if $norun && _args.size > 0
+    nrtalk(*_args)
+  elsif $verbose && _args.size > 0
+    vtalk(*_prefix_arg0(_args, '>> '))
+  end
+end
+
+def nrvtalkf *args
+  _args = _fmtargs(args, block_given?) { yield }
+  if $norun && _args.size > 0
+    nrtalkf(*_args)
+  elsif $verbose && _args.size > 0
+    vtalkf(*_prefix_arg0(_args, '>> '))
+  end
+end
+
+# _prefix_arg0( args, prefix )
+#
+# Prefix args[0] if the prefix is not already there, and if the args[0] value is
+# not nill.
+
+def _prefix_arg0(args, prefix)
+  if args.size > 0 && !args[0].nil? && !args[0].include?(prefix)
+    args[0] = prefix + args[0]
+  end
+  args
 end
 
 # end of talk-utils.sh
