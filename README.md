@@ -93,11 +93,11 @@ Non-verbose talk:
 
 No-run or verbose talk:
 
-    nvrtalk   msg         - print msg on STDERR prefixed with '(norun) ' or '>> '
-    nvrtalk { msg }
-    nvrtalkf fmt,    args ..
-    nvrtalkf(fmt) {[args, ..]}
-    nvrtalkf {[ fmt, args, ...]}
+    nrvtalk   msg         - print msg on STDERR prefixed with '(norun) ' or '>> '
+    nrvtalk { msg }
+    nrvtalkf fmt,    args ..
+    nrvtalkf(fmt) {[args, ..]}
+    nrvtalkf {[ fmt, args, ...]}
 
 Error output:
 
