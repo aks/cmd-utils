@@ -1,6 +1,6 @@
 # run-utils.rb -- simple utilities for running commands
 #
-# Alan K. Stebbens <aks@stebbens.org>
+# Copyright 2013-2015, Alan K. Stebbens <aks@stebbens.org>
 #
 #
 #    require 'run-utils'

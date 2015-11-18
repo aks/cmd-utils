@@ -3,7 +3,7 @@
 # A module to define some routines for running commands across many systems
 # using ssh
 #
-# Copyright 2013, Alan K. Stebbens <aks@stebbens.org>
+# Copyright 2013-2015, Alan K. Stebbens <aks@stebbens.org>
 #
 # Usage:
 #
