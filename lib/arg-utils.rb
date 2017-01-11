@@ -1,6 +1,6 @@
 # arg-utils.rb -- simple methods for managing variable argument lists
 #
-# Copyright 2013-2015, Alan K. Stebbens <aks@stebbens.org>
+# Copyright 2013-2017, Alan K. Stebbens <aks@stebbens.org>
 #
 #
 #    require 'arg-utils'

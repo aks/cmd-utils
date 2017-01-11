@@ -1,6 +1,6 @@
 # error-utils.rb -- simple utilities for managing errors to $stderr
 #
-# Copyright 2013-2015, Alan K. Stebbens <aks@stebbens.org>
+# Copyright 2013-2017, Alan K. Stebbens <aks@stebbens.org>
 #
 #
 #    require 'error-utils'

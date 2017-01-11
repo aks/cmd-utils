@@ -1,6 +1,6 @@
 # talk-utils.rb -- simple utilties for "talking" to $stderr
 #
-# Copyright 2013-2015, Alan K. Stebbens <aks@stebbens.org>
+# Copyright 2013-2017, Alan K. Stebbens <aks@stebbens.org>
 #
 #    require 'talk-utils'
 #
