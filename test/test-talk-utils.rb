@@ -239,8 +239,8 @@ class TestTalkUtils < Minitest::Test
   def test_dtalkf_content
     gen_test('dtalkf_content',         '   d', "-hello-") { dtalkf "-%s-",   "hello" }
     gen_test('dtalkf_content',         '   d', "-hello-") { dtalkf("-%s-") { "hello" } }
-    gen_test('dtalkf_default_content', '   d', "-hello-") { dtalkf           "hello" }
-    gen_test('dtalkf_default_content', '   d', "-hello-") { dtalkf         { "hello" } }
+    gen_test('dtalkf_default_content', '   d', "hello")   { dtalkf           "hello" }
+    gen_test('dtalkf_default_content', '   d', "hello")   { dtalkf         { "hello" } }
 
     gen_test('dtalkf_content',         '    ', false)     { dtalkf "-%s-",   "hello" }
     gen_test('dtalkf_content',         '    ', false)     { dtalkf("-%s-") { "hello" } }

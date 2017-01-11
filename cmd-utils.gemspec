@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib"]
   s.authors = ["Alan K. Stebbens"]
-  s.date = "2015-11-18"
+  s.date = "2017-01-11"
   s.description = "Several ruby libraries for building command-line utilities."
   s.email = "aks@stebbens.org"
   s.extra_rdoc_files = [
@@ -41,28 +41,28 @@ Gem::Specification.new do |s|
   ]
   s.homepage = "http://bitbucket.org/aks_/cmd-utils"
   s.licenses = ["MIT"]
-  s.rubygems_version = "2.4.5.1"
+  s.rubygems_version = "2.5.1"
   s.summary = "Utilities for building CLIs"
 
   if s.respond_to? :specification_version then
     s.specification_version = 4
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_development_dependency(%q<minitest>, ["~> 5.3"])
-      s.add_development_dependency(%q<rdoc>, ["~> 4.1"])
-      s.add_development_dependency(%q<bundler>, ["~> 1.0"])
-      s.add_development_dependency(%q<jeweler>, ["~> 2.0"])
+      s.add_development_dependency(%q<minitest>, [">= 5.10.1"])
+      s.add_development_dependency(%q<rdoc>, [">= 5.0.0"])
+      s.add_development_dependency(%q<bundler>, [">= 1.0"])
+      s.add_development_dependency(%q<jeweler>, [">= 2.3.2"])
     else
-      s.add_dependency(%q<minitest>, ["~> 5.3"])
-      s.add_dependency(%q<rdoc>, ["~> 4.1"])
-      s.add_dependency(%q<bundler>, ["~> 1.0"])
-      s.add_dependency(%q<jeweler>, ["~> 2.0"])
+      s.add_dependency(%q<minitest>, [">= 5.10.1"])
+      s.add_dependency(%q<rdoc>, [">= 5.0.0"])
+      s.add_dependency(%q<bundler>, [">= 1.0"])
+      s.add_dependency(%q<jeweler>, [">= 2.3.2"])
     end
   else
-    s.add_dependency(%q<minitest>, ["~> 5.3"])
-    s.add_dependency(%q<rdoc>, ["~> 4.1"])
-    s.add_dependency(%q<bundler>, ["~> 1.0"])
-    s.add_dependency(%q<jeweler>, ["~> 2.0"])
+    s.add_dependency(%q<minitest>, [">= 5.10.1"])
+    s.add_dependency(%q<rdoc>, [">= 5.0.0"])
+    s.add_dependency(%q<bundler>, [">= 1.0"])
+    s.add_dependency(%q<jeweler>, [">= 2.3.2"])
   end
 end
 

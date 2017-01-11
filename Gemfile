@@ -6,8 +6,8 @@ source "http://rubygems.org"
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
 group :development do
-  gem "minitest", '~> 5.3'
-  gem "rdoc",     "~> 4.1"
-  gem "bundler",  "~> 1.0"
-  gem "jeweler",  "~> 2.0"
+  gem "minitest", ">= 5.10.1"
+  gem "rdoc", ">= 5.0.0"
+  gem "bundler", ">= 1.0"
+  gem "jeweler", ">= 2.3.2"
 end

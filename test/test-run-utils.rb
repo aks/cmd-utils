@@ -23,9 +23,9 @@ class TestRunUtils < Minitest::Test
   end
 
   def test_run_errmsg
-    run_test("run 11", 'n', false,     "(norun) ( exit 1)\n")        { cmd_run "( exit 1)", 'error 11' }
-    run_test("run 12", 'v', false,     ">> ( exit 1)\nerror 12\n")   { cmd_run "( exit 1)", 'error 12' }
-    run_test("run 13", 'v', false,     ">> ( exit 0)\n")             { cmd_run "( exit 0)", 'no error 13' }
-    run_test("run 14", ' ', false,     false)                        { cmd_run "( exit 0)", 'no error 13' }
+    run_test("run 11", 'n', false,     "(norun) ( exit 1)\n")           { cmd_run "( exit 1)", 'error 11' }
+    run_test("run 12", 'v', false,     />> \( exit 1\).*\nerror 12\n/m) { cmd_run "( exit 1)", 'error 12' }
+    run_test("run 13", 'v', false,     ">> ( exit 0)\n")                { cmd_run "( exit 0)", 'no error 13' }
+    run_test("run 14", ' ', false,     false)                           { cmd_run "( exit 0)", 'no error 13' }
   end
 end
